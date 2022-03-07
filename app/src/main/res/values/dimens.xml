@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="dimen_0dp">0dp</dimen>
+    <dimen name="card_margin">18dp</dimen>
+    <dimen name="card_radius">5dp</dimen>
+    <dimen name="card_elevation">5dp</dimen>
+    <dimen name="horizontal_padding_icon">5dp</dimen>
+    <dimen name="padding">8dp</dimen>
+    <dimen name="name_textSize">18sp</dimen>
+    <dimen name="vertical_padding_icon">8dp</dimen>
+</resources>
