@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,6 +45,7 @@ public class AudioFragment extends Fragment implements LoaderManager.LoaderCallb
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentAudioBinding.inflate(inflater,container,false);
+        ((AppCompatActivity)requireActivity()).setTitle(getString(R.string.audio_files));
         loaderManager = requireActivity().getLoaderManager();
         checkPermission();
 

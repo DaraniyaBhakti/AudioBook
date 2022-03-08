@@ -14,4 +14,5 @@
     <string name="audio_alert_message">External storage access required for this function. Please grant access to move further.</string>
     <string name="audio_toast">Go to SETTINGS and enable storage permission</string>
     <string name="audio_files">Audio Files</string>
+    <string name="contacts">Contacts</string>
 </resources>
