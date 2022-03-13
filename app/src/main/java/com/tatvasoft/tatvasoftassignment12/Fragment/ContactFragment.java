@@ -2,31 +2,25 @@ package com.tatvasoft.tatvasoftassignment12.Fragment;
 
 import android.Manifest;
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.tatvasoft.tatvasoftassignment12.Adapter.ContactAdapter;
 import com.tatvasoft.tatvasoftassignment12.Model.ContactsModel;
-import com.tatvasoft.tatvasoftassignment12.R;
 import com.tatvasoft.tatvasoftassignment12.databinding.FragmentContactBinding;
 
 import java.util.ArrayList;
@@ -36,10 +30,11 @@ import java.util.Map;
 
 public class ContactFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final int REQUEST_CONTACTS = 101;
+    Context context;
     private LoaderManager loaderManager;
     private final ArrayList<ContactsModel> contactsModelArrayList = new ArrayList<>();
     private Map<Long, List<String>> phones;
+    ContactAdapter contactAdapter;
 
     public String[] PROJECTION_NUMBER = new String[]{
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
@@ -50,7 +45,11 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
             ContactsContract.Contacts.DISPLAY_NAME};
 
     public String sortByName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC";
-    FragmentContactBinding binding;
+    public static FragmentContactBinding fragmentContactBinding;
+
+    public ContactFragment(Context context) {
+        this.context = context;
+    }
 
     public ContactFragment() {
         // Required empty public constructor
@@ -66,11 +65,9 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentContactBinding.inflate(inflater,container,false);
-        ((AppCompatActivity)requireActivity()).setTitle(getString(R.string.contacts));
-        setHasOptionsMenu(true);
-        checkPermission();
-        return binding.getRoot();
+        fragmentContactBinding = FragmentContactBinding.inflate(inflater,container,false);
+        initializeLoader();
+        return fragmentContactBinding.getRoot();
     }
 
     @Override
@@ -139,9 +136,8 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
                 }
             }
         }
-        ContactAdapter contactAdapter = new ContactAdapter(contactsModelArrayList);
-        binding.contactRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.contactRecyclerView.setAdapter(contactAdapter);
+        contactAdapter = new ContactAdapter(contactsModelArrayList);
+        setContact();
     }
 
     @Override
@@ -149,10 +145,30 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
-    private void checkPermission(){
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_CONTACTS);
+    @Override
+    public void onResume() {
+        super.onResume();
+        setContact();
+        initializeLoader();
+    }
+
+    public void setContact() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+                getContactList();
+            }
         } else {
+            getContactList();
+        }
+    }
+
+    public void getContactList() {
+        fragmentContactBinding.contactRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        fragmentContactBinding.contactRecyclerView.setAdapter(contactAdapter);
+    }
+
+    public void initializeLoader(){
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             if (loaderManager.getLoader(1) == null) {
                 loaderManager.initLoader(1, null, this);
             } else {
@@ -160,50 +176,4 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
             }
         }
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CONTACTS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loaderManager.initLoader(1,null,this);
-            }else if(shouldShowRequestPermissionRationale(permissions[0])){
-                showDialogOK(getString(R.string.contact_alert_title),
-                        getString(R.string.contact_alert_message),
-                        (dialog, which) -> {
-                            if (which == DialogInterface.BUTTON_POSITIVE) {
-                                checkPermission();
-                            }
-                        });
-            }
-            else {
-                Toast.makeText(getContext(), getString(R.string.toast_contact), Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private void showDialogOK(String title, String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(R.string.ok_button, okListener)
-                .create()
-                .show();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        requireActivity().getMenuInflater().inflate(R.menu.option_menu_audio,menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container,new AudioFragment())
-                .addToBackStack(null)
-                .commit();
-        return super.onOptionsItemSelected(item);
-    }
-
 }

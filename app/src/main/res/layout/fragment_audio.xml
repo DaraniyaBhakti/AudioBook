@@ -9,4 +9,12 @@
         android:id="@+id/audioRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <TextView
+        android:id="@+id/grantPermissionText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/audio_toast"
+        android:textSize="@dimen/name_textSize"
+        android:visibility="gone"/>
 </FrameLayout>

@@ -17,11 +17,6 @@ public class AudioAsyncLoader extends AsyncTaskLoader<List<String>> {
         super(context);
     }
 
-    @Override
-    protected void onStartLoading() {
-        forceLoad();
-        super.onStartLoading();
-    }
 
     @Override
     public List<String> loadInBackground() {
@@ -38,5 +33,12 @@ public class AudioAsyncLoader extends AsyncTaskLoader<List<String>> {
         assert audioCursor != null;
         audioCursor.close();
         return arrayList;
+    }
+
+
+    @Override
+    protected void onStartLoading() {
+        forceLoad();
+        super.onStartLoading();
     }
 }
