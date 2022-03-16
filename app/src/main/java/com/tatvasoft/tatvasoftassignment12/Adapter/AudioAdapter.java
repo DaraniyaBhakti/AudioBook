@@ -1,14 +1,12 @@
 package com.tatvasoft.tatvasoftassignment12.Adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.tatvasoft.tatvasoftassignment12.R;
+import com.tatvasoft.tatvasoftassignment12.databinding.AudioItemRowBinding;
 
 import java.util.List;
 
@@ -23,13 +21,12 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.audio_item_row,parent,false);
-        return new ViewHolder(view);
+        return new AudioAdapter.ViewHolder(AudioItemRowBinding.inflate(inflater,parent,false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.tvAudioName.setText(arrayList.get(position));
+        holder.audioItemRowBinding.tvAudioName.setText(arrayList.get(position));
 
     }
 
@@ -38,11 +35,16 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> 
         return arrayList.size();
     }
 
+    public void clearData(){
+        arrayList.clear();
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAudioName;
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvAudioName = itemView.findViewById(R.id.tvAudioName);
+        private final AudioItemRowBinding audioItemRowBinding;
+        public ViewHolder(@NonNull AudioItemRowBinding audioItemRowBinding) {
+            super(audioItemRowBinding.getRoot());
+            this.audioItemRowBinding = audioItemRowBinding;
         }
     }
 }

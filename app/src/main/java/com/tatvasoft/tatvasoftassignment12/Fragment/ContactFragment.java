@@ -2,7 +2,6 @@ package com.tatvasoft.tatvasoftassignment12.Fragment;
 
 import android.Manifest;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.content.pm.PackageManager;
@@ -30,11 +29,9 @@ import java.util.Map;
 
 public class ContactFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    Context context;
     private LoaderManager loaderManager;
-    private final ArrayList<ContactsModel> contactsModelArrayList = new ArrayList<>();
     private Map<Long, List<String>> phones;
-    ContactAdapter contactAdapter;
+    private ContactAdapter contactAdapter;
 
     public String[] PROJECTION_NUMBER = new String[]{
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
@@ -47,10 +44,6 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
     public String sortByName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC";
     public static FragmentContactBinding fragmentContactBinding;
 
-    public ContactFragment(Context context) {
-        this.context = context;
-    }
-
     public ContactFragment() {
         // Required empty public constructor
     }
@@ -58,7 +51,7 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loaderManager = requireActivity().getLoaderManager();
+
     }
 
     @Override
@@ -66,12 +59,14 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         fragmentContactBinding = FragmentContactBinding.inflate(inflater,container,false);
+        loaderManager = requireActivity().getLoaderManager();
         initializeLoader();
         return fragmentContactBinding.getRoot();
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        getContext().getContentResolver().notifyChange(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null);
         if (id == 1) {
             return new CursorLoader(getContext(),
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -90,6 +85,7 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        ArrayList<ContactsModel> contactsModelArrayList = new ArrayList<>();
         switch (loader.getId()){
             case 1: {
                 phones = new HashMap<>();
@@ -131,18 +127,19 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
                             }
                         }
                     }
-                    cursor.close();
-
                 }
             }
         }
         contactAdapter = new ContactAdapter(contactsModelArrayList);
         setContact();
+
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        loader = null;
+        loader.cancelLoad();
+        contactAdapter.clearData();
     }
 
     @Override
@@ -152,9 +149,16 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
         initializeLoader();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        loaderManager.getLoader(1).stopLoading();
+        loaderManager.getLoader(1).cancelLoad();
+    }
+
     public void setContact() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
                 getContactList();
             }
         } else {
@@ -165,6 +169,7 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
     public void getContactList() {
         fragmentContactBinding.contactRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         fragmentContactBinding.contactRecyclerView.setAdapter(contactAdapter);
+        fragmentContactBinding.grantPermissionTextContact.setVisibility(View.GONE);
     }
 
     public void initializeLoader(){

@@ -6,12 +6,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AudioAsyncLoader extends AsyncTaskLoader<List<String>> {
-    private final ArrayList<String> arrayList = new ArrayList<>();
+    List<String> mList;
+    private final List<String> arrayList = new ArrayList<>();
+    Cursor audioCursor;
 
     public AudioAsyncLoader(Context context) {
         super(context);
@@ -22,7 +25,7 @@ public class AudioAsyncLoader extends AsyncTaskLoader<List<String>> {
     public List<String> loadInBackground() {
         ContentResolver audioResolver = getContext().getContentResolver();
         Uri audioUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor audioCursor = audioResolver.query(audioUri, null, null, null, null);
+        audioCursor = audioResolver.query(audioUri, null, null, null, null);
         if (audioCursor != null && audioCursor.moveToNext()) {
             int titleColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             do {
@@ -30,15 +33,66 @@ public class AudioAsyncLoader extends AsyncTaskLoader<List<String>> {
                 arrayList.add(title);
             } while (audioCursor.moveToNext());
         }
+
         assert audioCursor != null;
         audioCursor.close();
         return arrayList;
     }
 
+    @Override
+    public void deliverResult(List<String> data) {
+        if(isReset()){
+            if(data != null){
+                releaseResources(data);
+            }
+        }
+        List<String> oldList = mList;
+        mList = data;
+        if(isStarted()){
+            super.deliverResult(data);
+        }
+        if(oldList != null){
+            releaseResources(oldList);
+        }
+    }
 
     @Override
     protected void onStartLoading() {
-        forceLoad();
+        if(mList != null){
+            deliverResult(mList);
+        }
+        if(takeContentChanged() || mList == null){
+            forceLoad();
+        }
         super.onStartLoading();
+    }
+
+    @Override
+    protected void onStopLoading() {
+        super.onStopLoading();
+        cancelLoad();
+    }
+
+    @Override
+    public void onCanceled(List<String> data) {
+        super.onCanceled(data);
+        releaseResources(data);
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        onStopLoading();
+        if(mList != null){
+            releaseResources(mList);
+            mList = null;
+        }
+        releaseResources(mList);
+    }
+
+    private void releaseResources(List<String> data) {
+        if (data!= null && !data.isEmpty())
+            data.clear();
+
     }
 }

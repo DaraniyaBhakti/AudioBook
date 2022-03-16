@@ -2,7 +2,6 @@ package com.tatvasoft.tatvasoftassignment12.Fragment;
 
 import android.Manifest;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -23,13 +22,10 @@ import java.util.List;
 
 public class AudioFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<String>> {
 
-    Context context;
-    private LoaderManager loaderManager;
-    public static FragmentAudioBinding fragmentAudioBinding;
 
-    public AudioFragment(Context context) {
-        this.context = context;
-    }
+    private LoaderManager loaderManager;
+    AudioAdapter audioAdapter;
+    public static FragmentAudioBinding fragmentAudioBinding;
 
     public AudioFragment() {
         // Required empty public constructor
@@ -37,7 +33,7 @@ public class AudioFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        loaderManager = requireActivity().getLoaderManager();
     }
 
     @Override
@@ -45,7 +41,6 @@ public class AudioFragment extends Fragment implements LoaderManager.LoaderCallb
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         fragmentAudioBinding = FragmentAudioBinding.inflate(inflater,container,false);
-        loaderManager = requireActivity().getLoaderManager();
         initializeLoader();
         return fragmentAudioBinding.getRoot();
     }
@@ -77,13 +72,14 @@ public class AudioFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoadFinished(Loader<List<String>> loader, List<String> data) {
-        AudioAdapter audioAdapter = new AudioAdapter(data);
+        audioAdapter = new AudioAdapter(data);
         fragmentAudioBinding.audioRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         fragmentAudioBinding.audioRecyclerView.setAdapter(audioAdapter);
+        fragmentAudioBinding.grantPermissionText.setVisibility(View.GONE);
     }
 
     @Override
     public void onLoaderReset(Loader<List<String>> loader) {
-
+        audioAdapter.clearData();
     }
 }

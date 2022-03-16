@@ -39,14 +39,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addFragment(new ContactFragment(MainActivity.this),getString(R.string.contacts));
+        viewPagerAdapter.addFragment(new ContactFragment(),getString(R.string.contacts));
         viewPagerAdapter.addFragment(new AudioFragment(),getString(R.string.audio_files));
         binding.viewPager.setAdapter(viewPagerAdapter);
         binding.tabLayout.setupWithViewPager(binding.viewPager);
 
         if (checkAndRequestPermissions()) {
-            contactsFragment = new ContactFragment(this);
-            audioFilesFragment = new AudioFragment(this);
+            contactsFragment = new ContactFragment();
+            audioFilesFragment = new AudioFragment();
 
         }
     }
@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
                 if (permissionHashMap.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && permissionHashMap.get(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
                     // process the normal flow
-                    audioFilesFragment = new AudioFragment(this);
-                    contactsFragment = new ContactFragment(this);
+                    audioFilesFragment = new AudioFragment();
+                    contactsFragment = new ContactFragment();
                     //else any one or both the permissions are not granted
                 } else {
                     //permission is denied---without checking never ask again---- so ask permission again explaining the usage of permission
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.ok_button, okListener)
+                .setCancelable(false)
                 .create()
                 .show();
     }
