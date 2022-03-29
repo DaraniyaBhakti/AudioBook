@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ContactFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class  ContactFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private LoaderManager loaderManager;
     private Map<Long, List<String>> phones;
@@ -43,7 +44,7 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
 
     public String sortByName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC";
     public static FragmentContactBinding fragmentContactBinding;
-
+    View view;
     public ContactFragment() {
         // Required empty public constructor
     }
@@ -59,14 +60,25 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         fragmentContactBinding = FragmentContactBinding.inflate(inflater,container,false);
+        if(view==null){
+            view = fragmentContactBinding.getRoot();
+        }else {
+            ((ViewGroup)view.getParent()).removeView(view);
+        }
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         loaderManager = requireActivity().getLoaderManager();
         initializeLoader();
-        return fragmentContactBinding.getRoot();
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        getContext().getContentResolver().notifyChange(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null);
+        requireContext().getContentResolver().notifyChange(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null);
         if (id == 1) {
             return new CursorLoader(getContext(),
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -137,7 +149,6 @@ public class ContactFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        loader = null;
         loader.cancelLoad();
         contactAdapter.clearData();
     }

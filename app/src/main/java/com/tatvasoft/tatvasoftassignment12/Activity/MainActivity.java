@@ -10,7 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.tatvasoft.tatvasoftassignment12.Adapter.ViewPagerAdapter;
 import com.tatvasoft.tatvasoftassignment12.Fragment.AudioFragment;
 import com.tatvasoft.tatvasoftassignment12.Fragment.ContactFragment;
@@ -31,18 +36,19 @@ public class MainActivity extends AppCompatActivity {
     ContactFragment contactsFragment;
     AudioFragment audioFilesFragment;
     ActivityMainBinding binding;
-
+    private final String[] titles = new String[]{"Contacts","Audio Files"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addFragment(new ContactFragment(),getString(R.string.contacts));
-        viewPagerAdapter.addFragment(new AudioFragment(),getString(R.string.audio_files));
-        binding.viewPager.setAdapter(viewPagerAdapter);
-        binding.tabLayout.setupWithViewPager(binding.viewPager);
+
+        FragmentStateAdapter fragmentStateAdapter = new ViewPagerAdapter(this);
+
+        binding.viewPager.setAdapter(fragmentStateAdapter);
+        binding.viewPager.setOffscreenPageLimit(2);
+        new TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> tab.setText(titles[position])).attach();
 
         if (checkAndRequestPermissions()) {
             contactsFragment = new ContactFragment();

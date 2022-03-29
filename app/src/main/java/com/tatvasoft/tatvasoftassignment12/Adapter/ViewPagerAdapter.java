@@ -1,42 +1,42 @@
-package com.tatvasoft.tatvasoftassignment12.Adapter;
+ package com.tatvasoft.tatvasoftassignment12.Adapter;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+ import androidx.annotation.NonNull;
+ import androidx.fragment.app.Fragment;
+ import androidx.fragment.app.FragmentActivity;
+ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
+ import com.tatvasoft.tatvasoftassignment12.Fragment.AudioFragment;
+ import com.tatvasoft.tatvasoftassignment12.Fragment.ContactFragment;
 
-public class ViewPagerAdapter extends FragmentPagerAdapter {
-    ArrayList<String> titleList = new ArrayList<>();
-    List<Fragment> fragmentList = new ArrayList<>();
+public class ViewPagerAdapter extends FragmentStateAdapter {
 
-    public void addFragment(Fragment fragment, String title) {
-        titleList.add(title);
-        fragmentList.add(fragment);
+    private AudioFragment audioFragment;
+    private ContactFragment contactFragment;
+    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+        super(fragmentActivity);
     }
 
-    public ViewPagerAdapter(@NonNull FragmentManager fm) {
-        super(fm);
-    }
 
     @NonNull
     @Override
-    public Fragment getItem(int position) {
-        return fragmentList.get(position);
+    public Fragment createFragment(int position) {
+        if(position == 1){
+            if(audioFragment == null){
+                audioFragment = new AudioFragment();
+            }
+            return new AudioFragment();
+        }else{
+            if (contactFragment == null){
+                contactFragment = new ContactFragment();
+            }
+            return new ContactFragment();
+        }
+
+
     }
 
     @Override
-    public int getCount() {
-        return fragmentList.size();
-    }
-
-    @Nullable
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return titleList.get(position);
-
+    public int getItemCount() {
+        return 2;
     }
 }

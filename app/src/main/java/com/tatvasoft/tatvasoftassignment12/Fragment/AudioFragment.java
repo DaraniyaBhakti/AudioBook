@@ -30,6 +30,7 @@ public class AudioFragment extends Fragment implements LoaderManager.LoaderCallb
     public AudioFragment() {
         // Required empty public constructor
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
